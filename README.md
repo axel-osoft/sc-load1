@@ -26,7 +26,7 @@
 
 Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
 
-Blah2xxxxxBLAHBBHBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Blah2xxxxxBLAHBBHBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ## Sponsors
 
