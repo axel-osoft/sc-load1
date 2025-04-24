@@ -17,7 +17,7 @@ True
 False
 ```
 
-So in other words: *attrs* is useful even without actual attributes!
+So in other words: *attrs* is useful even without actual {term}`fields <field>`!
 
 But you'll usually want some data on your classes, so let's add some:
 
@@ -112,7 +112,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
 SomethingFromSomeoneElse(x=1)
 ```
 
-[Subclassing is bad for you](https://www.youtube.com/watch?v=3MNVP9-hglc), but *attrs* will still do what you'd hope for:
+[Subclassing is bad for you](https://www.youtube.com/watch?v=3MNVP9-hglc) (except when doing [strict specialization](https://hynek.me/articles/python-subclassing-redux/)), but *attrs* will still do what you'd hope for:
 
 ```{doctest}
 >>> @define(slots=False)
@@ -676,6 +676,21 @@ False
 
 
 ## Other Goodies
+
+When building systems that have something resembling a plugin interface, you may want to have a registry of all classes that implement a certain interface:
+
+```{doctest}
+>>> REGISTRY = []
+>>> class Base:  # does NOT have to be an attrs class!
+...     @classmethod
+...     def __attrs_init_subclass__(cls):
+...         REGISTRY.append(cls)
+>>> @define
+... class Impl(Base):
+...     pass
+>>> REGISTRY
+[<class 'Impl'>]
+```
 
 Sometimes you may want to create a class programmatically.
 *attrs* gives you {func}`attrs.make_class` for that:

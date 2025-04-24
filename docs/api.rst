@@ -5,23 +5,21 @@ API Reference
 
 *attrs* works by decorating a class using `attrs.define` or `attr.s` and then defining attributes on the class using `attrs.field`, `attr.ib`, or type annotations.
 
-What follows is the API explanation, if you'd like a more hands-on tutorial, have a look at `examples`.
+What follows is the dry API explanation for people who understand how *attrs* works.
+If you'd like a hands-on tutorial, have a look at `examples`.
 
 If you're confused by the many names, please check out `names` for clarification, but the `TL;DR <https://en.wikipedia.org/wiki/TL;DR>`_ is that as of version 21.3.0, *attrs* consists of **two** top-level package names:
 
 - The classic ``attr`` that powers the venerable `attr.s` and `attr.ib`.
 - The newer ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
-  Additionally it offers some ``attr`` APIs with nicer defaults (for example, `attrs.asdict`).
+  Additionally, some of the APIs that also exist in ``attr`` have nicer defaults (for example, `attrs.asdict`).
 
 The ``attrs`` namespace is built *on top of* ``attr`` -- which will *never* go away -- and is just as stable, since it doesn't constitute a rewrite.
-To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`, though.
+To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`.
 
 
 Core
 ----
-
-.. autodata:: attrs.NOTHING
-   :no-value:
 
 .. autofunction:: attrs.define
 
@@ -92,6 +90,10 @@ Core
       C(x=[], y=set())
       >>> C([1, 2, 3])
       C(x=[1, 2, 3], y={1, 2, 3})
+
+
+.. autodata:: attrs.NOTHING
+   :no-value:
 
 
 Exceptions
@@ -460,6 +462,29 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
       x = field(validator=attrs.validators.and_(v1, v2, v3))
       x = field(validator=[v1, v2, v3])
 
+.. autofunction:: attrs.validators.or_
+
+   For example:
+
+   .. doctest::
+
+      >>> @define
+      ... class C:
+      ...     val: int | list[int] = field(
+      ...         validator=attrs.validators.or_(
+      ...             attrs.validators.instance_of(int),
+      ...             attrs.validators.deep_iterable(attrs.validators.instance_of(int)),
+      ...         )
+      ...     )
+      >>> C(42)
+      C(val=42)
+      >>> C([1, 2, 3])
+      C(val=[1, 2, 3])
+      >>> C(val='42')
+      Traceback (most recent call last):
+         ...
+      ValueError: None of (<instance_of validator for type <class 'int'>>, <deep_iterable validator for iterables of <instance_of validator for type <class 'int'>>>) satisfied for value '42'
+
 .. autofunction:: attrs.validators.not_
 
    For example:
@@ -606,6 +631,27 @@ Validators can be both globally and locally disabled:
 
 Converters
 ----------
+
+.. autoclass:: attrs.Converter
+
+   For example:
+
+   .. doctest::
+
+      >>> def complicated(value, self_, field):
+      ...     return int(value) * self_.factor + field.metadata["offset"]
+      >>> @define
+      ... class C:
+      ...     factor = 5  # not an *attrs* field
+      ...     x = field(
+      ...         metadata={"offset": 200},
+      ...         converter=attrs.Converter(
+      ...             complicated,
+      ...             takes_self=True, takes_field=True
+      ...     ))
+      >>> C("42")
+      C(x=410)
+
 
 .. module:: attrs.converters
 

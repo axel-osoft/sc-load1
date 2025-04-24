@@ -120,15 +120,15 @@ class TestAnnotations:
 
         attr.resolve_types(C)
 
-        assert int == attr.fields(C).a.type
+        assert int is attr.fields(C).a.type
 
         assert attr.Factory(list) == attr.fields(C).x.default
-        assert typing.List[int] == attr.fields(C).x.type
+        assert typing.List[int] is attr.fields(C).x.type
 
-        assert int == attr.fields(C).y.type
+        assert int is attr.fields(C).y.type
         assert 2 == attr.fields(C).y.default
 
-        assert int == attr.fields(C).z.type
+        assert int is attr.fields(C).z.type
 
         assert typing.Any == attr.fields(C).foo.type
 
@@ -277,25 +277,27 @@ class TestAnnotations:
         def identity(z):
             return z
 
-        assert attr.converters.pipe(int2str).__annotations__ == {
+        assert attr.converters.pipe(int2str).converter.__annotations__ == {
             "val": int,
             "return": str,
         }
-        assert attr.converters.pipe(int2str, strlen).__annotations__ == {
+        assert attr.converters.pipe(
+            int2str, strlen
+        ).converter.__annotations__ == {
             "val": int,
             "return": int,
         }
-        assert attr.converters.pipe(identity, strlen).__annotations__ == {
-            "return": int
-        }
-        assert attr.converters.pipe(int2str, identity).__annotations__ == {
-            "val": int
-        }
+        assert attr.converters.pipe(
+            identity, strlen
+        ).converter.__annotations__ == {"return": int}
+        assert attr.converters.pipe(
+            int2str, identity
+        ).converter.__annotations__ == {"val": int}
 
         def int2str_(x: int, y: int = 0) -> str:
             return str(x)
 
-        assert attr.converters.pipe(int2str_).__annotations__ == {
+        assert attr.converters.pipe(int2str_).converter.__annotations__ == {
             "val": int,
             "return": str,
         }
@@ -306,17 +308,20 @@ class TestAnnotations:
         """
 
         p = attr.converters.pipe()
-        assert "val" in p.__annotations__
-        t = p.__annotations__["val"]
+
+        assert "val" in p.converter.__annotations__
+
+        t = p.converter.__annotations__["val"]
+
         assert isinstance(t, typing.TypeVar)
-        assert p.__annotations__ == {"val": t, "return": t}
+        assert p.converter.__annotations__ == {"val": t, "return": t}
 
     def test_pipe_non_introspectable(self):
         """
         pipe() doesn't crash when passed a non-introspectable converter.
         """
 
-        assert attr.converters.pipe(print).__annotations__ == {}
+        assert attr.converters.pipe(print).converter.__annotations__ == {}
 
     def test_pipe_nullary(self):
         """
@@ -326,7 +331,7 @@ class TestAnnotations:
         def noop():
             pass
 
-        assert attr.converters.pipe(noop).__annotations__ == {}
+        assert attr.converters.pipe(noop).converter.__annotations__ == {}
 
     def test_optional(self):
         """
@@ -534,7 +539,7 @@ class TestAnnotations:
 
         attr.resolve_types(C, globals)
 
-        assert attr.fields(C).x.type == Annotated[float, "test"]
+        assert Annotated[float, "test"] is attr.fields(C).x.type
 
         @attr.define
         class D:
@@ -542,7 +547,7 @@ class TestAnnotations:
 
         attr.resolve_types(D, globals, include_extras=False)
 
-        assert attr.fields(D).x.type == float
+        assert float is attr.fields(D).x.type
 
     def test_resolve_types_auto_attrib(self, slots):
         """
@@ -658,8 +663,8 @@ class TestAnnotations:
         attr.resolve_types(A)
         attr.resolve_types(B)
 
-        assert int == attr.fields(A).n.type
-        assert int == attr.fields(B).n.type
+        assert int is attr.fields(A).n.type
+        assert int is attr.fields(B).n.type
 
     def test_resolve_twice(self):
         """
@@ -672,9 +677,12 @@ class TestAnnotations:
             n: "int"
 
         attr.resolve_types(A)
-        assert int == attr.fields(A).n.type
+
+        assert int is attr.fields(A).n.type
+
         attr.resolve_types(A)
-        assert int == attr.fields(A).n.type
+
+        assert int is attr.fields(A).n.type
 
 
 @pytest.mark.parametrize(

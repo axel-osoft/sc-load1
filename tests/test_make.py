@@ -69,6 +69,18 @@ def _with_and_without_validation(request):
         attr.validators.set_disabled(False)
 
 
+@pytest.mark.parametrize("hash", [True, False])
+def test_hash_is_deprecated(hash):
+    """
+    Passing anything else than None to hash raises a deprecation warning.
+    """
+    with pytest.deprecated_call():
+
+        @attr.s(hash=hash)
+        class C:
+            pass
+
+
 class TestCountingAttr:
     """
     Tests for `attr`.
@@ -534,7 +546,7 @@ class TestAttributes:
             ("repr", "__repr__"),
             ("eq", "__eq__"),
             ("order", "__le__"),
-            ("hash", "__hash__"),
+            ("unsafe_hash", "__hash__"),
             ("init", "__init__"),
         ],
     )
@@ -550,7 +562,7 @@ class TestAttributes:
             "repr": True,
             "eq": True,
             "order": True,
-            "hash": True,
+            "unsafe_hash": True,
             "init": True,
         }
         am_args[arg_name] = False
@@ -693,6 +705,25 @@ class TestAttributes:
         c = C(y=11)
 
         assert 12 == getattr(c, "z", None)
+
+    @pytest.mark.usefixtures("with_and_without_validation")
+    def test_pre_init_kw_only_work_with_defaults(self):
+        """
+        Default values together with kw_only don't break __attrs__pre_init__.
+        """
+        val = None
+
+        @attr.define
+        class KWOnlyAndDefault:
+            kw_and_default: int = attr.field(kw_only=True, default=3)
+
+            def __attrs_pre_init__(self, *, kw_and_default):
+                nonlocal val
+                val = kw_and_default
+
+        inst = KWOnlyAndDefault()
+
+        assert 3 == val == inst.kw_and_default
 
     @pytest.mark.usefixtures("with_and_without_validation")
     def test_post_init(self):
@@ -1099,7 +1130,7 @@ class TestMakeClass:
 
         cls = make_class("C", {})
 
-        assert cls.__mro__[-1] == object
+        assert cls.__mro__[-1] is object
 
         cls = make_class("C", {}, bases=(D,))
 
@@ -1163,6 +1194,43 @@ class TestMakeClass:
         MyParent = new_class("MyParent", (Generic[MyTypeVar],), {})
 
         attr.make_class("test", {"id": attr.ib(type=str)}, (MyParent[int],))
+
+    def test_annotations(self):
+        """
+        make_class fills the __annotations__ dict for attributes with a known
+        type.
+        """
+        a = attr.ib(type=bool)
+        b = attr.ib(
+            type=None
+        )  # Won't be added to ann. b/c of unfavorable default
+        c = attr.ib()
+
+        C = attr.make_class("C", {"a": a, "b": b, "c": c})
+        C = attr.resolve_types(C)
+
+        assert {"a": bool} == C.__annotations__
+
+    def test_annotations_resolve(self):
+        """
+        resolve_types() resolves the annotations added by make_class().
+        """
+        a = attr.ib(type="bool")
+
+        C = attr.make_class("C", {"a": a})
+        C = attr.resolve_types(C)
+
+        assert attr.fields(C).a.type is bool
+        assert {"a": "bool"} == C.__annotations__
+
+    @pytest.mark.parametrize("hash", [True, False])
+    def test_hash_is_deprecated(self, hash):
+        """
+        Passing anything else than None to hash raises a deprecation warning.
+        """
+        with pytest.deprecated_call():
+
+            make_class("CH", {}, hash=hash)
 
 
 class TestFields:
@@ -1284,7 +1352,7 @@ class TestConverter:
     Tests for attribute conversion.
     """
 
-    def test_convert(self):
+    def test_converter(self):
         """
         Return value of converter is used as the attribute's value.
         """
@@ -1295,6 +1363,46 @@ class TestConverter:
 
         assert c.x == 2
         assert c.y == 2
+
+    def test_converter_wrapped_takes_self(self):
+        """
+        When wrapped and passed `takes_self`, the converter receives the
+        instance that's being initializes -- and the return value is used as
+        the field's value.
+        """
+
+        def converter_with_self(v, self_):
+            return v * self_.y
+
+        @attr.define
+        class C:
+            x: int = attr.field(
+                converter=attr.Converter(converter_with_self, takes_self=True)
+            )
+            y = 42
+
+        assert 84 == C(2).x
+
+    def test_converter_wrapped_takes_field(self):
+        """
+        When wrapped and passed `takes_field`, the converter receives the field
+        definition -- and the return value is used as the field's value.
+        """
+
+        def converter_with_field(v, field):
+            assert isinstance(field, attr.Attribute)
+            return v * field.metadata["x"]
+
+        @attr.define
+        class C:
+            x: int = attr.field(
+                converter=attr.Converter(
+                    converter_with_field, takes_field=True
+                ),
+                metadata={"x": 42},
+            )
+
+        assert 84 == C(2).x
 
     @given(integers(), booleans())
     def test_convert_property(self, val, init):
@@ -1660,12 +1768,12 @@ class TestClassBuilder:
         attributes.
         """
 
-        @attr.s(hash=True, str=True)
+        @attr.s(unsafe_hash=True, str=True)
         class C:
             def organic(self):
                 pass
 
-        @attr.s(hash=True, str=True)
+        @attr.s(unsafe_hash=True, str=True)
         class D:
             pass
 
@@ -1775,7 +1883,7 @@ class TestClassBuilder:
         """
         Generate a list of compatible attr.s arguments for the `copy` tests.
         """
-        options = ["frozen", "hash", "cache_hash"]
+        options = ["frozen", "unsafe_hash", "cache_hash"]
 
         if include_slots:
             options.extend(["slots", "weakref_slot"])
@@ -1784,10 +1892,10 @@ class TestClassBuilder:
         for args in itertools.product([True, False], repeat=len(options)):
             kwargs = dict(zip(options, args))
 
-            kwargs["hash"] = kwargs["hash"] or None
+            kwargs["unsafe_hash"] = kwargs["unsafe_hash"] or None
 
             if kwargs["cache_hash"] and not (
-                kwargs["frozen"] or kwargs["hash"]
+                kwargs["frozen"] or kwargs["unsafe_hash"]
             ):
                 continue
 
@@ -2146,7 +2254,7 @@ class TestAutoDetect:
     def test_make_all_by_default(self, slots, frozen):
         """
         If nothing is there to be detected, imply init=True, repr=True,
-        hash=None, eq=True, order=True.
+        unsafe_hash=None, eq=True, order=True.
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
@@ -2199,11 +2307,11 @@ class TestAutoDetect:
         to generate the hash code.
         """
 
-        @attr.s(slots=slots, frozen=frozen, hash=True)
+        @attr.s(slots=slots, frozen=frozen, unsafe_hash=True)
         class C:
             x = attr.ib(eq=str)
 
-        @attr.s(slots=slots, frozen=frozen, hash=True)
+        @attr.s(slots=slots, frozen=frozen, unsafe_hash=True)
         class D:
             x = attr.ib()
 
@@ -2326,10 +2434,10 @@ class TestAutoDetect:
 
     def test_override_hash(self, slots, frozen):
         """
-        If hash=True is passed, ignore __hash__.
+        If unsafe_hash=True is passed, ignore __hash__.
         """
 
-        @attr.s(hash=True, auto_detect=True, slots=slots, frozen=frozen)
+        @attr.s(unsafe_hash=True, auto_detect=True, slots=slots, frozen=frozen)
         class C:
             x = attr.ib()
 
