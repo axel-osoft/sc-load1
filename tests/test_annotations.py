@@ -11,9 +11,7 @@ import typing
 import pytest
 
 import attr
-import attrs
 
-from attr._compat import PY_3_14_PLUS
 from attr._make import _is_class_var
 from attr.exceptions import UnannotatedAttributeError
 
@@ -62,7 +60,7 @@ class TestAnnotations:
                 x: int = attr.ib(type=int)
 
         assert (
-            "Type annotation and type argument cannot both be present for 'x'.",
+            "Type annotation and type argument cannot both be present",
         ) == e.value.args
 
     def test_typing_annotations(self):
@@ -108,7 +106,7 @@ class TestAnnotations:
         class C:
             cls_var: typing.ClassVar[int] = 23
             a: int
-            x: typing.List[int] = attrs.Factory(list)
+            x: typing.List[int] = attr.Factory(list)
             y: int = 2
             z: int = attr.ib(default=3)
             foo: typing.Any = None
@@ -279,25 +277,27 @@ class TestAnnotations:
         def identity(z):
             return z
 
-        assert attr.converters.pipe(int2str).__annotations__ == {
+        assert attr.converters.pipe(int2str).converter.__annotations__ == {
             "val": int,
             "return": str,
         }
-        assert attr.converters.pipe(int2str, strlen).__annotations__ == {
+        assert attr.converters.pipe(
+            int2str, strlen
+        ).converter.__annotations__ == {
             "val": int,
             "return": int,
         }
-        assert attr.converters.pipe(identity, strlen).__annotations__ == {
-            "return": int
-        }
-        assert attr.converters.pipe(int2str, identity).__annotations__ == {
-            "val": int
-        }
+        assert attr.converters.pipe(
+            identity, strlen
+        ).converter.__annotations__ == {"return": int}
+        assert attr.converters.pipe(
+            int2str, identity
+        ).converter.__annotations__ == {"val": int}
 
         def int2str_(x: int, y: int = 0) -> str:
             return str(x)
 
-        assert attr.converters.pipe(int2str_).__annotations__ == {
+        assert attr.converters.pipe(int2str_).converter.__annotations__ == {
             "val": int,
             "return": str,
         }
@@ -309,19 +309,19 @@ class TestAnnotations:
 
         p = attr.converters.pipe()
 
-        assert "val" in p.__annotations__
+        assert "val" in p.converter.__annotations__
 
-        t = p.__annotations__["val"]
+        t = p.converter.__annotations__["val"]
 
         assert isinstance(t, typing.TypeVar)
-        assert p.__annotations__ == {"val": t, "return": t}
+        assert p.converter.__annotations__ == {"val": t, "return": t}
 
     def test_pipe_non_introspectable(self):
         """
         pipe() doesn't crash when passed a non-introspectable converter.
         """
 
-        assert attr.converters.pipe(print).__annotations__ == {}
+        assert attr.converters.pipe(print).converter.__annotations__ == {}
 
     def test_pipe_nullary(self):
         """
@@ -331,7 +331,7 @@ class TestAnnotations:
         def noop():
             pass
 
-        assert attr.converters.pipe(noop).__annotations__ == {}
+        assert attr.converters.pipe(noop).converter.__annotations__ == {}
 
     def test_optional(self):
         """
@@ -408,7 +408,7 @@ class TestAnnotations:
             cls_var2: "ClassVar[int]" = 23
             cls_var3: "t.ClassVar[int]" = 23
             a: "int"
-            x: "typing.List[int]" = attrs.Factory(list)
+            x: "typing.List[int]" = attr.Factory(list)
             y: "int" = 2
             z: "int" = attr.ib(default=3)
             foo: "typing.Any" = None
@@ -501,7 +501,7 @@ class TestAnnotations:
 
         @attr.s(auto_attribs=True)
         class C:
-            x: typing.Any = NonComparable()  # noqa: RUF009
+            x: typing.Any = NonComparable()
 
     def test_basic_resolve(self):
         """
@@ -588,8 +588,6 @@ class TestAnnotations:
         """
         References to self class using quotes can be resolved.
         """
-        if PY_3_14_PLUS and not slots:
-            pytest.xfail("References are changing a lot in 3.14.")
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:
@@ -605,8 +603,6 @@ class TestAnnotations:
         """
         Forward references can be resolved.
         """
-        if PY_3_14_PLUS and not slots:
-            pytest.xfail("Forward references are changing a lot in 3.14.")
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:

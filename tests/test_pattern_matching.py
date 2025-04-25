@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 
+# Keep this file SHORT, until Black can handle it.
 import pytest
 
 import attr

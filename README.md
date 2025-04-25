@@ -9,6 +9,7 @@
 
 <p align="center">
    <a href="https://www.attrs.org/en/stable/"><img src="https://img.shields.io/badge/Docs-RTD-black" alt="Documentation" /></a>
+   <a href="https://github.com/python-attrs/attrs/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-C06524" alt="License: MIT" /></a>
    <a href="https://bestpractices.coreinfrastructure.org/projects/6482"><img src="https://bestpractices.coreinfrastructure.org/projects/6482/badge"></a>
    <a href="https://pypi.org/project/attrs/"><img src="https://img.shields.io/pypi/v/attrs" /></a>
    <a href="https://pepy.tech/project/attrs"><img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" /></a>
@@ -36,15 +37,12 @@ Especially those generously supporting us at the *The Organization* tier and hig
 import pathlib, tomllib
 
 for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]["sponcon"]["sponsors"]:
-      print(f'<a href="{sponsor["url"]}"><img title="{sponsor["title"]}" src="docs/_static/sponsors/{sponsor["img"]}" width="190" /></a>')
+      print(f'<a href="{sponsor["url"]}"><img title="{sponsor["title"]}" src="docs/_static/sponsors/{sponsor["img"]}" width="200" height="60" /></a>')
 ]]] -->
-<a href="https://www.variomedia.de/"><img title="Variomedia AG" src="docs/_static/sponsors/Variomedia.svg" width="190" /></a>
-<a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="docs/_static/sponsors/Tidelift.svg" width="190" /></a>
-<a href="https://klaviyo.com/"><img title="Klaviyo" src="docs/_static/sponsors/Klaviyo.svg" width="190" /></a>
-<a href="https://privacy-solutions.org/"><img title="Privacy Solutions" src="docs/_static/sponsors/Privacy-Solutions.svg" width="190" /></a>
-<a href="https://www.emsys-renewables.com/"><img title="emsys renewables" src="docs/_static/sponsors/emsys-renewables.svg" width="190" /></a>
-<a href="https://filepreviews.io/"><img title="FilePreviews" src="docs/_static/sponsors/FilePreviews.svg" width="190" /></a>
-<a href="https://polar.sh/"><img title="Polar" src="docs/_static/sponsors/Polar.svg" width="190" /></a>
+<a href="https://www.variomedia.de/"><img title="Variomedia AG" src="docs/_static/sponsors/Variomedia.svg" width="200" height="60" /></a>
+<a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="docs/_static/sponsors/Tidelift.svg" width="200" height="60" /></a>
+<a href="https://klaviyo.com/"><img title="Klaviyo" src="docs/_static/sponsors/Klaviyo.svg" width="200" height="60" /></a>
+<a href="https://filepreviews.io/"><img title="FilePreviews" src="docs/_static/sponsors/FilePreviews.svg" width="200" height="60" /></a>
 <!-- [[[end]]] -->
 
 </p>
@@ -153,7 +151,8 @@ For more details, please refer to our [comparison page](https://www.attrs.org/en
 
 ### *attrs* for Enterprise
 
-Available as part of the [Tidelift Subscription](https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek).
+Available as part of the Tidelift Subscription.
 
 The maintainers of *attrs* and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source packages you use to build your applications.
 Save time, reduce risk, and improve code health, while paying the maintainers of the exact packages you use.
+[Learn more.](https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek)

@@ -26,16 +26,10 @@ from attr import define, frozen, field, validators, Factory
 """
 
 linkcheck_ignore = [
-    # Fastly blocks this.
-    "https://pypi.org/project/attr/#history",
     # We run into GitHub's rate limits.
     r"https://github.com/.*/(issues|pull)/\d+",
     # Rate limits and the latest tag is missing anyways on release.
     "https://github.com/python-attrs/attrs/tree/.*",
-]
-
-linkcheck_anchors_ignore_for_url = [
-    r"^https?://(www\.)?github\.com/.*",
 ]
 
 # In nitpick mode (-n), still ignore any of the following "broken" references

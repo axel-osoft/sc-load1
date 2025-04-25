@@ -3,14 +3,12 @@
 """
 Tests for `attr._make`.
 """
-
 import copy
 import functools
 import gc
 import inspect
 import itertools
 import sys
-import unicodedata
 
 from operator import attrgetter
 from typing import Generic, TypeVar
@@ -23,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY_3_10_PLUS, PY_3_14_PLUS
+from attr._compat import PY_3_8_PLUS, PY_3_10_PLUS
 from attr._make import (
     Attribute,
     Factory,
@@ -69,6 +67,18 @@ def _with_and_without_validation(request):
         yield
     finally:
         attr.validators.set_disabled(False)
+
+
+@pytest.mark.parametrize("hash", [True, False])
+def test_hash_is_deprecated(hash):
+    """
+    Passing anything else than None to hash raises a deprecation warning.
+    """
+    with pytest.deprecated_call():
+
+        @attr.s(hash=hash)
+        class C:
+            pass
 
 
 class TestCountingAttr:
@@ -201,7 +211,7 @@ class TestTransformAttrs:
         class C:
             pass
 
-        assert _Attributes((), [], {}) == _transform_attrs(
+        assert _Attributes(((), [], {})) == _transform_attrs(
             C, None, False, False, True, None
         )
 
@@ -1101,48 +1111,6 @@ class TestMakeClass:
 
         assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
 
-    def test_normalized_unicode_attr_args(self):
-        """
-        Unicode identifiers are valid in Python.
-        """
-        clsname = "ü"
-
-        assert clsname == unicodedata.normalize("NFKC", clsname)
-
-        attrname = "ß"
-
-        assert attrname == unicodedata.normalize("NFKC", attrname)
-
-        C = make_class(clsname, [attrname], repr=False)
-
-        assert repr(C(1)).startswith("<tests.test_make.ü object at 0x")
-
-        kwargs = {"ß": 1}
-        c = C(**kwargs)
-
-        assert 1 == c.ß
-
-    def test_unnormalized_unicode_attr_args(self):
-        """
-        Unicode identifiers are normalized to NFKC form in Python.
-        """
-
-        clsname = "Ŀ"
-
-        assert clsname != unicodedata.normalize("NFKC", clsname)
-
-        attrname = "ㅁ"
-
-        assert attrname != unicodedata.normalize("NFKC", attrname)
-
-        C = make_class(clsname, [attrname], repr=False)
-        assert repr(C(1)).startswith("<tests.test_make.L· object at 0x")
-
-        kwargs = {unicodedata.normalize("NFKC", attrname): 1}
-        c = C(**kwargs)
-
-        assert 1 == c.ㅁ
-
     def test_catches_wrong_attrs_type(self):
         """
         Raise `TypeError` if an invalid type for attrs is passed.
@@ -1254,6 +1222,15 @@ class TestMakeClass:
 
         assert attr.fields(C).a.type is bool
         assert {"a": "bool"} == C.__annotations__
+
+    @pytest.mark.parametrize("hash", [True, False])
+    def test_hash_is_deprecated(self, hash):
+        """
+        Passing anything else than None to hash raises a deprecation warning.
+        """
+        with pytest.deprecated_call():
+
+            make_class("CH", {}, hash=hash)
 
 
 class TestFields:
@@ -1778,6 +1755,7 @@ class TestClassBuilder:
             "__repr__",
             "__str__",
             "__eq__",
+            "__ne__",
             "__lt__",
             "__le__",
             "__gt__",
@@ -1809,9 +1787,7 @@ class TestClassBuilder:
         organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
         assert organic_prefix + "." + meth_name == meth_C.__qualname__
 
-    def test_handles_missing_meta_on_class(
-        self, monkeypatch: pytest.MonkeyPatch
-    ):
+    def test_handles_missing_meta_on_class(self):
         """
         If the class hasn't a __module__ or __qualname__, the method hasn't
         either.
@@ -1819,19 +1795,6 @@ class TestClassBuilder:
 
         class C:
             pass
-
-        orig_hasattr = __builtins__["hasattr"]
-
-        def our_hasattr(obj, name, /) -> bool:
-            if name in ("__module__", "__qualname__"):
-                return False
-            return orig_hasattr(obj, name)
-
-        monkeypatch.setitem(
-            _ClassBuilder.__init__.__globals__["__builtins__"],
-            "hasattr",
-            our_hasattr,
-        )
 
         b = _ClassBuilder(
             C,
@@ -1849,14 +1812,13 @@ class TestClassBuilder:
             has_custom_setattr=False,
             field_transformer=None,
         )
+        b._cls = {}  # no __module__; no __qualname__
 
         def fake_meth(self):
             pass
 
         fake_meth.__module__ = "42"
         fake_meth.__qualname__ = "23"
-
-        b._cls = {}  # No module and qualname
 
         rv = b._add_method_dunders(fake_meth)
 
@@ -1896,11 +1858,10 @@ class TestClassBuilder:
 
         assert [C2] == C.__subclasses__()
 
-    @pytest.mark.xfail(PY_3_14_PLUS, reason="Currently broken on nightly.")
+    @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
     def test_no_references_to_original_when_using_cached_property(self):
         """
-        When subclassing a slotted class and using cached property, there are
-        no stray references to the original class.
+        When subclassing a slotted class and using cached property, there are no stray references to the original class.
         """
 
         @attr.s(slots=True)
@@ -2240,6 +2201,7 @@ class TestDocs:
             "__init__",
             "__repr__",
             "__eq__",
+            "__ne__",
             "__lt__",
             "__le__",
             "__gt__",

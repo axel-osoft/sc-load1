@@ -3,7 +3,6 @@
 """
 Testing strategies for Hypothesis-based tests.
 """
-
 import functools
 import keyword
 import string
@@ -13,6 +12,8 @@ from collections import OrderedDict
 from hypothesis import strategies as st
 
 import attr
+
+from attr._compat import PY_3_8_PLUS
 
 from .utils import make_class
 
@@ -188,7 +189,9 @@ def simple_classes(
         cls_dict["__init__"] = init
 
     bases = (object,)
-    if cached_property or (cached_property is None and cached_property_flag):
+    if cached_property or (
+        PY_3_8_PLUS and cached_property is None and cached_property_flag
+    ):
 
         class BaseWithCachedProperty:
             @functools.cached_property
