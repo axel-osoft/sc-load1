@@ -12,76 +12,6 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
 
 <!-- towncrier release notes start -->
 
-## [25.3.0](https://github.com/python-attrs/attrs/tree/25.3.0) - 2025-03-13
-
-### Changes
-
-- Restore support for generator-based `field_transformer`s.
-  [#1417](https://github.com/python-attrs/attrs/issues/1417)
-
-
-## [25.2.0](https://github.com/python-attrs/attrs/tree/25.2.0) - 2025-03-12
-
-### Changes
-
-- Checking mandatory vs non-mandatory attribute order is now performed after the field transformer, since the field transformer may change attributes and/or their order.
-  [#1147](https://github.com/python-attrs/attrs/issues/1147)
-- `attrs.make_class()` now allows for Unicode class names.
-  [#1406](https://github.com/python-attrs/attrs/issues/1406)
-- Speed up class creation by 30%-50% by compiling methods only once and using a variety of other techniques.
-  [#1407](https://github.com/python-attrs/attrs/issues/1407)
-- The error message if an attribute has both an annotation and a type argument will now disclose _what_ attribute seems to be the problem.
-  [#1410](https://github.com/python-attrs/attrs/issues/1410)
-
-
-## [25.1.0](https://github.com/python-attrs/attrs/tree/25.1.0) - 2025-01-25
-
-### Changes
-
-- This release only ensures correct PyPI licensing metadata.
-  [#1386](https://github.com/python-attrs/attrs/issues/1386)
-
-
-## [24.3.0](https://github.com/python-attrs/attrs/tree/24.3.0) - 2024-12-16
-
-### Backwards-incompatible Changes
-
-- Python 3.7 has been dropped.
-  [#1340](https://github.com/python-attrs/attrs/issues/1340)
-
-
-### Changes
-
-- Introduce `attrs.NothingType`, for annotating types consistent with `attrs.NOTHING`.
-  [#1358](https://github.com/python-attrs/attrs/issues/1358)
-- Allow mutating `__suppress_context__` and `__notes__` on frozen exceptions.
-  [#1365](https://github.com/python-attrs/attrs/issues/1365)
-- `attrs.converters.optional()` works again when taking `attrs.converters.pipe()` or another Converter as its argument.
-  [#1372](https://github.com/python-attrs/attrs/issues/1372)
-- *attrs* instances now support [`copy.replace()`](https://docs.python.org/3/library/copy.html#copy.replace).
-  [#1383](https://github.com/python-attrs/attrs/issues/1383)
-- `attrs.validators.instance_of()`'s type hints now allow for union types.
-  For example: `instance_of(str | int)`
-  [#1385](https://github.com/python-attrs/attrs/issues/1385)
-
-
-## [24.2.0](https://github.com/python-attrs/attrs/tree/24.2.0) - 2024-08-06
-
-### Deprecations
-
-- Given the amount of warnings raised in the broader ecosystem, we've decided to only soft-deprecate the *hash* argument to `@define` / `@attr.s`.
-  Please don't use it in new code, but we don't intend to remove it anymore.
-  [#1330](https://github.com/python-attrs/attrs/issues/1330)
-
-
-### Changes
-
-- `attrs.converters.pipe()` (and its syntactic sugar of passing a list for `attrs.field()`'s / `attr.ib()`'s *converter* argument) works again when passing `attrs.setters.convert` to *on_setattr* (which is default for `attrs.define`).
-  [#1328](https://github.com/python-attrs/attrs/issues/1328)
-- Restored support for PEP [649](https://peps.python.org/pep-0649/) / [749](https://peps.python.org/pep-0749/)-implementing Pythons -- currently 3.14-dev.
-  [#1329](https://github.com/python-attrs/attrs/issues/1329)
-
-
 ## [24.1.0](https://github.com/python-attrs/attrs/tree/24.1.0) - 2024-08-03
 
 ### Backwards-incompatible Changes
@@ -94,9 +24,9 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
   [#1265](https://github.com/python-attrs/attrs/issues/1265)
 - All packaging metadata except from `__version__` and `__version_info__` has been removed from the `attr` and `attrs` modules (for example, `attrs.__url__`).
 
-  Please use [`importlib.metadata`](https://docs.python.org/3/library/importlib.metadata.html) or [*importlib-metadata*](https://pypi.org/project/importlib-metadata/) instead.
+  Please use [`importlib.metadata`](https://docs.python.org/3/library/importlib.metadata.html) or [*importlib_metadata*](https://pypi.org/project/importlib-metadata/) instead.
   [#1268](https://github.com/python-attrs/attrs/issues/1268)
-- The generated `__eq__` methods have been sped up significantly by generating a chain of attribute comparisons instead of constructing and comparing tuples.
+- Speed up the generated `__eq__` methods significantly by generating a chain of attribute comparisons instead of constructing and comparing tuples.
   This change arguably makes the behavior more correct,
   but changes it if an attribute compares equal by identity but not value, like `float('nan')`.
   [#1310](https://github.com/python-attrs/attrs/issues/1310)

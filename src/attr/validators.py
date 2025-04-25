@@ -4,6 +4,7 @@
 Commonly useful validators.
 """
 
+
 import operator
 import re
 
@@ -172,7 +173,7 @@ def matches_re(regex, flags=0, func=None):
     if func not in valid_funcs:
         msg = "'func' must be one of {}.".format(
             ", ".join(
-                sorted((e and e.__name__) or "None" for e in set(valid_funcs))
+                sorted(e and e.__name__ or "None" for e in set(valid_funcs))
             )
         )
         raise ValueError(msg)
@@ -485,7 +486,7 @@ def gt(val):
     A validator that raises `ValueError` if the initializer is called with a
     number smaller or equal to *val*.
 
-    The validator uses `operator.gt` to compare the values.
+    The validator uses `operator.ge` to compare the values.
 
     Args:
        val: Exclusive lower bound for values

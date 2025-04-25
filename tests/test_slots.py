@@ -3,7 +3,6 @@
 """
 Unit tests for slots-related functionality.
 """
-
 import functools
 import pickle
 import weakref
@@ -15,7 +14,7 @@ import pytest
 import attr
 import attrs
 
-from attr._compat import PY_3_14_PLUS, PYPY
+from attr._compat import PY_3_8_PLUS, PYPY
 
 
 # Pympler doesn't work on PyPy.
@@ -722,6 +721,7 @@ def test_slots_super_property_get_shortcut():
     assert B(17).f == 289
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_allows_call():
     """
     cached_property in slotted class allows call.
@@ -738,6 +738,7 @@ def test_slots_cached_property_allows_call():
     assert A(11).f == 11
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_class_does_not_have__dict__():
     """
     slotted class with cached property has no __dict__ attribute.
@@ -755,6 +756,7 @@ def test_slots_cached_property_class_does_not_have__dict__():
     assert "__dict__" not in dir(A)
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_works_on_frozen_isntances():
     """
     Infers type of cached property.
@@ -771,9 +773,7 @@ def test_slots_cached_property_works_on_frozen_isntances():
     assert A(x=1).f == 1
 
 
-@pytest.mark.xfail(
-    PY_3_14_PLUS, reason="3.14 returns weird annotation for cached_properies"
-)
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_infers_type():
     """
     Infers type of cached property.
@@ -790,6 +790,7 @@ def test_slots_cached_property_infers_type():
     assert A.__annotations__ == {"x": int, "f": int}
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requested():
     """
     Ensures error information is not lost.
@@ -810,6 +811,7 @@ def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requ
         a.z
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_raising_attributeerror():
     """
     Ensures AttributeError raised by a property is preserved by __getattr__()
@@ -848,6 +850,7 @@ def test_slots_cached_property_raising_attributeerror():
     assert a.q == 2
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes():
     """
     Ensure __getattr__ implementation is maintained for non cached_properties.
@@ -869,6 +872,7 @@ def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes
     assert a.z == "z"
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
     """
     Ensure __getattr__ implementation is maintained in subclass.
@@ -892,6 +896,7 @@ def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cach
     assert b.z == "z"
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_getattr_in_subclass_gets_superclass_cached_property():
     """
     Ensure super() in __getattr__ is not broken through cached_property re-write.
@@ -922,6 +927,7 @@ def test_slots_getattr_in_subclass_gets_superclass_cached_property():
     assert b.z == "z"
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_sub_class_with_independent_cached_properties_both_work():
     """
     Subclassing shouldn't break cached properties.
@@ -945,6 +951,7 @@ def test_slots_sub_class_with_independent_cached_properties_both_work():
     assert B(1).g == 2
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_with_multiple_cached_property_subclasses_works():
     """
     Multiple sub-classes shouldn't break cached properties.
@@ -980,6 +987,7 @@ def test_slots_with_multiple_cached_property_subclasses_works():
     assert ab.h == "h"
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slotted_cached_property_can_access_super():
     """
     Multiple sub-classes shouldn't break cached properties.
@@ -998,6 +1006,7 @@ def test_slotted_cached_property_can_access_super():
     assert B(x=1).f == 2
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_sub_class_avoids_duplicated_slots():
     """
     Duplicating the slots is a waste of memory.
@@ -1021,6 +1030,7 @@ def test_slots_sub_class_avoids_duplicated_slots():
     assert B.__slots__ == ()
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_sub_class_with_actual_slot():
     """
     A sub-class can have an explicit attrs field that replaces a cached property.
@@ -1042,6 +1052,7 @@ def test_slots_sub_class_with_actual_slot():
     assert B.__slots__ == ()
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_is_not_called_at_construction():
     """
     A cached property function should only be called at property access point.
@@ -1062,6 +1073,7 @@ def test_slots_cached_property_is_not_called_at_construction():
     assert call_count == 0
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_repeat_call_only_once():
     """
     A cached property function should be called only once, on repeated attribute access.
@@ -1084,6 +1096,7 @@ def test_slots_cached_property_repeat_call_only_once():
     assert call_count == 1
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_called_independent_across_instances():
     """
     A cached property value should be specific to the given instance.
@@ -1104,6 +1117,7 @@ def test_slots_cached_property_called_independent_across_instances():
     assert obj_2.f == 2
 
 
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_properties_work_independently():
     """
     Multiple cached properties should work independently.

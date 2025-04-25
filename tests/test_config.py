@@ -4,6 +4,7 @@
 Tests for `attr._config`.
 """
 
+
 import pytest
 
 from attr import _config

@@ -97,7 +97,7 @@ slotted classes
   - Since it's currently impossible to make a class slotted after it's been created, *attrs* has to replace your class with a new one.
     While it tries to do that as graciously as possible, certain metaclass features like {meth}`object.__init_subclass__` do not work with slotted classes.
 
-  - The {attr}`type.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using {func}`gc.collect`), for the original class to be removed.
+  - The {attr}`class.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using {func}`gc.collect`), for the original class to be removed.
     See issue [#407](https://github.com/python-attrs/attrs/issues/407) for more details.
 
   - Pickling of slotted classes will fail if you define a class with missing attributes.
@@ -113,7 +113,7 @@ field
 
   However, with the emergence of {mod}`dataclasses`, [Pydantic](https://docs.pydantic.dev/latest/concepts/fields/), and other libraries, the term "field" has become a common term for a predefined attribute on a class in the Python ecosystem.
 
-  So with our new APIs, we've embraced it too by calling the function to create them {func}`attrs.field`, and use the term "field" throughout the documentation interchangeably.
+  So with out new APIs, we've embraced it too by calling the function to create them {func}`attrs.field`, and use the term "field" throughout the documentation interchangeably.
 
   See also {doc}`names`.
 

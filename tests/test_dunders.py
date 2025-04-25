@@ -4,6 +4,7 @@
 Tests for dunder methods from `attrib._make`.
 """
 
+
 import copy
 import inspect
 import pickle
@@ -19,8 +20,7 @@ from attr._make import (
     NOTHING,
     Factory,
     _add_repr,
-    _compile_and_eval,
-    _make_init_script,
+    _make_init,
     fields,
     make_class,
 )
@@ -86,7 +86,7 @@ def _add_init(cls, frozen):
     """
     has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
 
-    script, globs, annots = _make_init_script(
+    cls.__init__ = _make_init(
         cls,
         cls.__attrs_attrs__,
         has_pre_init,
@@ -104,9 +104,6 @@ def _add_init(cls, frozen):
         cls_on_setattr=None,
         attrs_init=False,
     )
-    _compile_and_eval(script, globs, filename="__init__")
-    cls.__init__ = globs["__init__"]
-    cls.__init__.__annotations__ = annots
     return cls
 
 
@@ -484,12 +481,12 @@ class TestAddHash:
         exc_args = ("Invalid value for hash.  Must be True, False, or None.",)
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, unsafe_hash=1)
+            make_class("C", {}, unsafe_hash=1),
 
         assert exc_args == e.value.args
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {"a": attr.ib(hash=1)})
+            make_class("C", {"a": attr.ib(hash=1)}),
 
         assert exc_args == e.value.args
 
@@ -1006,37 +1003,37 @@ class TestFilenames:
         """
         assert (
             OriginalC.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated init tests.test_dunders.C>"
         )
         assert (
             OriginalC.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated eq tests.test_dunders.C>"
         )
         assert (
             OriginalC.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated hash tests.test_dunders.C>"
         )
         assert (
             CopyC.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated init tests.test_dunders.C>"
         )
         assert (
             CopyC.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated eq tests.test_dunders.C>"
         )
         assert (
             CopyC.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated hash tests.test_dunders.C>"
         )
         assert (
             C.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated init tests.test_dunders.C-1>"
         )
         assert (
             C.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated eq tests.test_dunders.C-1>"
         )
         assert (
             C.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated hash tests.test_dunders.C-1>"
         )
