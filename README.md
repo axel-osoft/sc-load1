@@ -27,7 +27,7 @@ Its main goal is to help you to write **concise** and **correct** software witho
 ## Sponsorsxxxxx
 
 *attrs* would not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
-Especially those generously supporting us at the *The Organizatxion* tier and higher:
+Especially those generously supporting us at the *The Orgaxxnizatxion* tier and higher:
 
 <!-- sponsor-break-begin -->
 
