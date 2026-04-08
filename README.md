@@ -24,7 +24,7 @@ JOY JOY JOY REJOICexxx
 Its main goal is to help you to write **concise** and **correct** software without slowing down your code. XXXXXXXXXXXXxxxxxx
 
 
-## Sponsorsxx
+## Sponsorsxxxxx
 
 *attrs* would not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
 Especially those generously supporting us at the *The Organizatxion* tier and higher:
