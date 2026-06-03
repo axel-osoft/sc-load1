@@ -100,7 +100,7 @@ C(a='foo', b='bar')
 
 After *declaring* your attributes, *attrs* gives you:
 
-- a concise and explicit overview of the class's attributes,
+- a concise and explicit overview of the class's attributes, xx
 - a nice human-readable `__repr__`,
 - equality-checking methods,
 - an initializer,
