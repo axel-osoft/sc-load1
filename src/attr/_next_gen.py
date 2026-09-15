@@ -19,6 +19,10 @@ from ._make import (
 )
 from .exceptions import UnannotatedAttributeError
 
+def a_function():
+    print("hi")
+    print("more lines")
+
 
 def define(
     maybe_cls=None,
